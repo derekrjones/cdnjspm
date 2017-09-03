@@ -64,8 +64,8 @@ var app = {
     if (this.params.silent) colog.silent(true);
 
     // The main call to the store
-    store.findMatching(this.params.query).then(function (results) {
-      this.parseMatches(results);
+    return store.findMatching(this.params.query).then(function (results) {
+      return this.parseMatches(results);
     }.bind(this)).catch(console.error);
   },
 
@@ -76,7 +76,6 @@ var app = {
    * execute process request on it.
    */
   parseMatches: function(matches) {
-
     // No matches
     if (matches.length == 0) console.log("No matches found for " + this.params.query);
 
@@ -85,8 +84,9 @@ var app = {
       // Log options
       colog.warning("Found many packages! Which one do you want?");
       var itemNames = matches.map(function(item) { return item.name });
-      return prompt.options(itemNames).then(function(ans) {
-        this._processRequest(matches[ans]);
+      return prompt.options(itemNames)
+        .then(function(ans) {
+        return this._processRequest(matches[ans]);
       }.bind(this)).catch(console.error);
     }
 
@@ -99,8 +99,7 @@ var app = {
    * launches the install process depending on app.params
    */
   _processRequest: function(lib) {
-    if (this.params.printHTML) this._printTags(lib);
-    else this._install(lib);
+    return this.params.printHTML ? this._printTags(lib) : this._install(lib);
   },
 
   /*
@@ -128,7 +127,7 @@ var app = {
    */
   _install: function(lib) {
     colog.info("Will install " + lib.name);
-    store.getDependentPackages(lib)
+    return store.getDependentPackages(lib)
     .then(function(dependentPackages) {
       dl.download(lib, this.params.version, this.params.destination, this.params.minimal);
       dependentPackages.forEach( function(dependency) {

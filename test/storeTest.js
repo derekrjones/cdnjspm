@@ -28,7 +28,7 @@ var fakeRequest = function(url) {
   return Q(res);
 }
 before(function() {
-  sinon.stub(store, "_call", fakeRequest);
+  sinon.stub(store, "_call").callsFake(fakeRequest);
 });
 after(function() {
   store._call.restore();

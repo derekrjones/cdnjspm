@@ -19,20 +19,15 @@ var dummyUnderscore = require('./helpers/fixtures').dummyUnderscore();
 describe('CLI', function() {
 
   beforeEach(function() {
-    sinon.stub(store, "findMatching", function(query) {
+    sinon.stub(store, "findMatching").callsFake(function(query) {
       if (query == "jquery") return Q([dummyJquery]);
       else if (query == "ember") return Q([dummyEmber, dummyEmberFire]);
       else if (query == "underscore") return Q([dummyUnderscore]);
     });
-    // This is so my stubbers execute immediately, and I can run
-    // assertions (like called, calledWith, etc..) against them
-    // immediately
-    sinon.stub(process, "nextTick").yields();
   });
 
   afterEach(function() {
     store.findMatching.restore();
-    process.nextTick.restore();
   });
 
   describe('.parseArgs()', function() {
@@ -149,15 +144,19 @@ describe('CLI', function() {
     });
 
     it('asks store to find a match for query', function() {
-      app.run({_: ["jquery"]});
-      expect(store.findMatching).to.have.been.calledWith("jquery");
+      return app.run({_: ["jquery"]})
+        .finally(function() {
+          expect(store.findMatching).to.have.been.calledWith("jquery");
+        })
     });
 
     it('asks store to check for dependencies', function() {
       sinon.stub(prompt, "options").returns(Q(0));
-      app.run({_: ["ember"]});
-      expect(store.getDependentPackages).to.have.been.called;
-      prompt.options.restore();
+      return app.run({_: ["ember"]})
+        .finally(function() {
+          expect(store.getDependentPackages).to.have.been.called;
+          prompt.options.restore();
+        })
     });
 
   });
@@ -175,8 +174,10 @@ describe('CLI', function() {
     });
 
     it('prompts user when multiple found', function() {
-      app.run({_: ["ember"]});
-      expect(prompt.options).to.have.been.called;
+      return app.run({_: ["ember"]})
+        .finally(function() {
+          expect(prompt.options).to.have.been.called;
+        })
     });
 
   });
@@ -262,31 +263,41 @@ describe('CLI', function() {
 
     it("doesn't execute a download", function() {
       sinon.stub(dl, "download");
-      app.run({_: ["jquery"], t: true});
-      expect(dl.download).to.not.have.been.called;
-      dl.download.restore();
+      return app.run({_: ["jquery"], t: true})
+        .finally(function() {
+          expect(dl.download).to.not.have.been.called;
+          dl.download.restore();
+        });
     });
 
     it("prints out script tags", function() {
-      app.run({_: ["jquery"], t: true});
-      expectTagPrintedFor("jquery", "4.4.4", "file1-4.4.4.js");
-      expectTagPrintedFor("jquery", "4.4.4", "file2-4.4.4.js");
+      return app.run({_: ["jquery"], t: true})
+        .finally(function() {
+          expectTagPrintedFor("jquery", "4.4.4", "file1-4.4.4.js");
+          expectTagPrintedFor("jquery", "4.4.4", "file2-4.4.4.js");
+        });
     });
 
     it("spits out a single tag for the latest file with -m", function() {
-      app.run({_: ["jquery"], t: true, m: true});
-      expectTagPrintedFor("jquery", "4.4.4", "latest.js");
+      return app.run({_: ["jquery"], t: true, m: true})
+        .finally(function() {
+          expectTagPrintedFor("jquery", "4.4.4", "latest.js");
+        });
     });
 
     it("spits out script tags with correct version", function() {
-      app.run({_: ["jquery"], t: true, v: "<4"});
-      expectTagPrintedFor("jquery", "3.3.3", "file1-3.3.3.js");
-      expectTagPrintedFor("jquery", "3.3.3", "file2-3.3.3.js");
+      return app.run({_: ["jquery"], t: true, v: "<4"})
+        .finally(function() {
+          expectTagPrintedFor("jquery", "3.3.3", "file1-3.3.3.js");
+          expectTagPrintedFor("jquery", "3.3.3", "file2-3.3.3.js");
+        });
     });
 
     it("spits out the correct versionned script tag with -m", function() {
-      app.run({_: ["jquery"], t: true, v: "<4", m: true});
-      expectTagPrintedFor("jquery", "3.3.3", "latest.js");
+      return app.run({_: ["jquery"], t: true, v: "<4", m: true})
+        .finally(function() {
+          expectTagPrintedFor("jquery", "3.3.3", "latest.js");
+        });
     });
 
   });
