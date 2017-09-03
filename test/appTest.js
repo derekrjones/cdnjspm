@@ -7,7 +7,7 @@ var sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 // Lib
 var prompt    = require('../lib/prompt');
-var app       = require('../app');
+var app       = require('../cli');
 var store     = require('../lib/store');
 var dl        = require('../lib/downloader');
 //Fixtures

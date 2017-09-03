@@ -1,13 +1,36 @@
 {
-  "name": "fletch",
-  "version": "1.1.3",
-  "description": "Pull down cdnjs libraries and their dependencies with ease",
-  "engines": {
-    "node": "0.12.x"
+  "name": "cdnjspm",
+  "version": "0.0.1",
+  "description": "Manage cdnjs libraries with ease",
+  "license": "ISC",
+  "bin": {
+    "cdnjspm": "cli.js"
   },
-  "preferGlobal": "true",
-  "bin": "./app.js",
-  "main": "app.js",
+  "author": {
+    "name": "Derek Jones",
+    "email": "contact.derekjones@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Yann Vanhalewyn",
+      "email": "yann.vanhalewyn@gmail.com"
+    },
+    {
+      "name": "rdshoep",
+      "email": "rdshoep@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/derekrjones/cdnjspm.git"
+  },
+  "homepage": "https://github.com/derekrjones/cdnjspm",
+  "keywords": [
+    "pulldown",
+    "cdnjs",
+    "libraries",
+    "javascript"
+  ],
   "dependencies": {
     "colog": "^1.0.4",
     "mkdirp": "^0.5.1",
@@ -23,24 +46,14 @@
     "sinon": "^1.14.1",
     "sinon-chai": "^2.7.0"
   },
+  "engines": {
+    "node": ">=0.12.1"
+  },
   "scripts": {
     "test": "mocha test/*Test.js",
-    "start": "node app.js"
+    "start": "node cli.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yannvanhalewyn/fletch.git"
-  },
-  "keywords": [
-    "pulldown",
-    "cdnjs",
-    "libraries",
-    "javascript"
-  ],
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yannvanhalewyn/fletch/issues"
-  },
-  "homepage": "https://github.com/yannvanhalewyn/fletch",
-  "author": "Yann Vanhalewyn <yann.vanhalewyn@gmail.com>"
+    "url": "https://github.com/derekrjones/cdnjspm/issues"
+  }
 }

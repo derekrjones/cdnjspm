@@ -1,12 +1,11 @@
-FLETCH
+cdnjspm
 ======
 
 Get your libraries and scripts from the interwebs fast and easy!
 
-Fletch is inspired by tools like
-[pulldown](https://github.com/jackfranklin/pulldown), but focuses on a faster
-experience and a way to download all the files linked to a package, including
-dependencies.
+cdnjspm is forked from [Fletch](https://github.com/yannvanhalewyn/fletch).
+Changes:
+* Change project name to help other easily find and use
 
 ![general screenshot](http://i.imgur.com/t5qlkVr.png "Screenshot")
 
@@ -14,7 +13,7 @@ Installation
 ------------
 
 ```
-$ npm install -g fletch
+$ npm install -g cdnjspm
 ```
 
 This gives you a command-line command you can run from anywhere in your system.
@@ -23,7 +22,7 @@ Usage
 -----
 
 ```
-$ fletch <packageName> [options]
+$ cdnjspm <packageName> [options]
 ```
 
 ### Options
@@ -39,22 +38,22 @@ $ fletch <packageName> [options]
 
 ### Examples
 ```
-$ fletch jquery
+$ cdnjspm jquery
 ```
-Downloads latest version of jQuery to current dir
+Downloads latest version of jQuery to `jquery/${last_version}/` folder
 
 ```
-$ fletch jquery -o lib/deps
+$ cdnjspm jquery -o lib/deps
 ```
 Downloads latest version of jQuery to the lib/deps/ directory
 
 ```
-$ fletch jquery -v "<2"
+$ cdnjspm jquery -v "<2"
 ```
 Downloads a version of jQuery that's lower than 2.0.0
 
 ```
-$ fletch jquery -t
+$ cdnjspm jquery -t
 ```
 Prints out a script tag for every file in the package
 
