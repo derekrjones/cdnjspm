@@ -36,15 +36,16 @@
     "mkdirp": "^0.5.1",
     "q": "^1.4.1",
     "request": "^2.55.0",
-    "semver": "^4.3.5",
-    "yargs": "^3.9.1"
+    "semver": "^5.4.1",
+    "yargs": "^8.0.2"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
-    "mock-fs": "^2.7.0",
-    "mock-stdin": "^0.3.0",
-    "sinon": "^1.14.1",
-    "sinon-chai": "^2.7.0"
+    "chai": "^4.1.2",
+    "mocha": "^3.5.0",
+    "mock-fs": "^4.4.1",
+    "mock-stdin": "^0.3.1",
+    "sinon": "^3.2.1",
+    "sinon-chai": "^2.13.0"
   },
   "engines": {
     "node": ">=0.12.1"
