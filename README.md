@@ -1,5 +1,4 @@
-cdnjspm
-======
+# cdnjspm
 
 Get your libraries and scripts from the interwebs fast and easy!
 
@@ -9,8 +8,7 @@ Changes:
 
 ![general screenshot](http://i.imgur.com/t5qlkVr.png "Screenshot")
 
-Installation
-------------
+## Installation
 
 ```
 $ npm install -g cdnjspm
@@ -18,8 +16,7 @@ $ npm install -g cdnjspm
 
 This gives you a command-line command you can run from anywhere in your system.
 
-Usage
------
+## Usage
 
 ```
 $ cdnjspm <packageName> [options]
@@ -75,21 +72,3 @@ Fletch scans for dependencies and asks you if you want'em.
 Will, again, ask you to resolve any conflicts found when looking for dependent
 files.
 ![Dependency conflict](http://i.imgur.com/qZyTxGF.png)
-
-## Running tests
-
-If you want to run the tests, you need mocha installed. Please run
-
-`$ npm install -g mocha`
-
-Then you'll need to pulldown the devdependencies
-
-`$ npm install`
-
-Now running either `mocha` or `npm test` will run the test suite.
-
-## Tips
-
-If you're rocking vim as a text editor, try running `:r !fletch jquery -mt`, and
-you'll see a script tag for the latest version of jQuery appear under your
-cursor. Sweet huh?
