@@ -52,6 +52,7 @@
   },
   "scripts": {
     "test": "mocha test/*Test.js",
+    "tdd": "nodemon --watch lib --watch test node_modules/mocha/bin/mocha --reporter dot --slow 200ms --bail test/*Test.js",
     "start": "node cli.js"
   },
   "bugs": {
