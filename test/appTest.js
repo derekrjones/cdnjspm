@@ -14,27 +14,21 @@ var dl = require('../lib/downloader');
 
 describe('CLI', function() {
   beforeEach(function() {
-    sinon.stub(store, 'findMatching').callsFake(function(query) {
-      var res = query == 'jquery' ? [fixtures.jquery]
-        : query == 'ember' ? [fixtures.ember, fixtures.emberFire]
-        : query == 'underscore' ? [fixtures.underscore]
-        : undefined;
+    sinon.stub(store, '_call').callsFake(function fakeCdnRequest(url) {
+      var resBody = url.match(/jquery/i) ? {results: [fixtures.jquery]}
+        : url.match(/underscore/i) ? {results: [fixtures.underscore]}
+        : url.match(/ember/i) ? {results: [fixtures.ember, fixtures.emberFire]}
+        : {results: []};
+      var res = ['200 ok', JSON.stringify(resBody)];
       return Q(res);
     });
   });
   afterEach(function() {
-    store.findMatching.restore();
+    store._call.restore();
   });
-  describe('.parseArgs()', function() {
-    // Don't clutter stdout with help messages
-    before(function() {
-      sinon.stub(app, 'showHelp');
-    });
-    after(function() {
-      app.showHelp.restore();
-    });
+  describe('parseArgs', function() {
     it('has the correct defaults', function() {
-      app.run({_: []});
+      var opts = app.parseArgs({_: []});
       var expected = {
         query: undefined,
         showHelp: false,
@@ -44,63 +38,71 @@ describe('CLI', function() {
         minimal: false,
         printHTML: false
       };
-      expect(app.params).to.eql(expected);
+      expect(opts).to.eql(expected);
     });
-    it('stores the requested package name', function() {
-      app.run({_: ['ember']});
-      expect(app.params.query).to.equal('ember');
+    it('parses the requested package name', function() {
+      var opts = app.parseArgs({_: ['ember']});
+      expect(opts.query).to.equal('ember');
     });
-    it('stores -o as destination', function() {
-      app.run({_: [], o: 'lib/deps'});
-      expect(app.params.destination).to.equal('lib/deps');
+    it('parses -o as destination', function() {
+      var opts = app.parseArgs({_: [], o: 'lib/deps'});
+      expect(opts.destination).to.equal('lib/deps');
     });
-    it('stores -v as version', function() {
-      app.run({_: [], v: '<=2.1.1'});
-      expect(app.params.version).to.equal('<=2.1.1');
+    it('parses -v as version', function() {
+      var opts = app.parseArgs({_: [], v: '<=2.1.1'});
+      expect(opts.version).to.equal('<=2.1.1');
     });
-    it('stores -m as minimal', function() {
-      app.run({_: [], m: true});
-      expect(app.params.minimal).to.be.true;
+    it('parses -m as minimal', function() {
+      var opts = app.parseArgs({_: [], m: true});
+      expect(opts.minimal).to.be.true;
     })
-    it('stores -h as showHelp', function() {
-      app.run({_: [], h: true});
-      expect(app.params.showHelp).to.be.true;
+    it('parses -h as showHelp', function() {
+      var opts = app.parseArgs({_: [], h: true});
+      expect(opts.showHelp).to.be.true;
     });
-    it('stores -s as silent', function() {
-      app.run({_: [], s: true});
-      expect(app.params.silent).to.be.true;
+    it('parses -s as silent', function() {
+      var opts = app.parseArgs({_: [], s: true});
+      expect(opts.silent).to.be.true;
     });
-    it('stores -t as printHTML', function() {
-      app.run({_: [], t: true});
-      expect(app.params.printHTML).to.be.true;
+    it('parses -t as printHTML', function() {
+      var opts = app.parseArgs({_: [], t: true});
+      expect(opts.printHTML).to.be.true;
     });
     it('understands --output', function() {
-      app.run({_: [], output: 'lib/deps'});
-      expect(app.params.destination).to.equal('lib/deps');
+      var opts = app.parseArgs({_: [], output: 'lib/deps'});
+      expect(opts.destination).to.equal('lib/deps');
     });
     it('understands --version', function() {
-      app.run({_: [], version: '<=2.1.1'});
-      expect(app.params.version).to.equal('<=2.1.1');
+      var opts = app.parseArgs({_: [], version: '<=2.1.1'});
+      expect(opts.version).to.equal('<=2.1.1');
     });
     it('understands --help', function() {
-      app.run({_: [], help: true});
-      expect(app.params.showHelp).to.be.true;
+      var opts = app.parseArgs({_: [], help: true});
+      expect(opts.showHelp).to.be.true;
     });
     it('understands --silent', function() {
-      app.run({_: [], silent: true});
-      expect(app.params.silent).to.be.true;
+      var opts = app.parseArgs({_: [], silent: true});
+      expect(opts.silent).to.be.true;
     });
     it('understands --minimal', function() {
-      app.run({_: [], minimal: true});
-      expect(app.params.minimal).to.be.true;
+      var opts = app.parseArgs({_: [], minimal: true});
+      expect(opts.minimal).to.be.true;
     });
     it('understands --tag', function() {
-      app.run({_: [], tag: true});
-      expect(app.params.printHTML).to.be.true;
+      var opts = app.parseArgs({_: [], tag: true});
+      expect(opts.printHTML).to.be.true;
+    });
+  });
+  describe('parseArgs that logs', function() {
+    beforeEach(function() {
+      sinon.stub(console, 'log').returns(undefined);
+    });
+    afterEach(function() {
+      console.log.restore();
     });
     it('calls the help page', function() {
       app.run({_: [], help: true});
-      expect(app.showHelp).to.have.been.called;
+      expect(console.log).to.have.callCount(17);
     });
     it('sets colog to silent mode', function() {
       var colog = require('colog');
@@ -111,9 +113,11 @@ describe('CLI', function() {
   });
   describe('dispatch to store', function() {
     beforeEach(function() {
+      sinon.spy(store, 'findMatching');
       sinon.stub(store, 'getDependentPackages').returns(Q([]));
     });
     afterEach(function() {
+      store.findMatching.restore();
       store.getDependentPackages.restore();
     });
     it('asks store to find a match for query', function() {
@@ -168,8 +172,8 @@ describe('CLI', function() {
     it('dispatches downloads for dependencies', function() {
       return app.run({_: ['ember']})
         .finally(function() {
-          expect(dl.download).to.have.been.calledWith(fixtures.jquery);
-          expect(dl.download).to.have.been.calledWith(fixtures.underscore);
+          expect(dl.download).to.have.been.calledWithMatch(fixtures.jquery);
+          expect(dl.download).to.have.been.calledWithMatch(fixtures.underscore);
         });
     });
     it('passes on the outputDir', function() {
@@ -194,8 +198,8 @@ describe('CLI', function() {
     it('passes on the correct versions of dependencies', function() {
       return app.run({_: ['ember']})
         .finally(function() {
-          expect(dl.download).to.have.been.calledWith(fixtures.underscore, '1.2.3');
-          expect(dl.download).to.have.been.calledWith(fixtures.jquery, '3.2.1');
+          expect(dl.download).to.have.been.calledWithMatch(fixtures.underscore, '1.2.3');
+          expect(dl.download).to.have.been.calledWithMatch(fixtures.jquery, '3.2.1');
         });
     });
     it('passes on true if minimal flag is set', function() {
@@ -207,8 +211,8 @@ describe('CLI', function() {
     it('it passes on the minimal flag to deps downloads', function() {
       return app.run({_: ['ember'], m: true})
         .finally(function() {
-          expect(dl.download).to.have.been.calledWith(fixtures.underscore, '1.2.3', '', true);
-          expect(dl.download).to.have.been.calledWith(fixtures.jquery, '3.2.1', '', true);
+          expect(dl.download).to.have.been.calledWithMatch(fixtures.underscore, '1.2.3', '', true);
+          expect(dl.download).to.have.been.calledWithMatch(fixtures.jquery, '3.2.1', '', true);
         });
     });
   });
