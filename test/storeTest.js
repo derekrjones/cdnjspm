@@ -7,22 +7,23 @@ chai.use(sinonChai);
 
 var fixtures = require('./helpers/fixtures');
 
-var store = require('../lib/store');
+var api = require('../lib/api');
 var prompt = require('../lib/prompt');
+var store = require('../lib/store');
 
 describe('Store', function() {
   before(function() {
-    sinon.stub(store, '_call').callsFake(function fakeCdnRequest(url) {
-      var resBody = url.match(/jquery/i) ? {results: [fixtures.jquery]}
-        : url.match(/underscore/i) ? {results: [fixtures.underscore]}
-        : url.match(/ember/i) ? {results: [fixtures.ember, fixtures.emberFire]}
-        : {results: []};
-      var res = ['200 ok', JSON.stringify(resBody)];
-      return Q(res);
-    });
+    sinon.stub(api, 'search')
+      .callsFake(function fakeCdnRequest(url) {
+        var res = url.match(/jquery/i) ? [fixtures.jquery]
+          : url.match(/underscore/i) ? [fixtures.underscore]
+          : url.match(/ember/i) ? [fixtures.ember, fixtures.emberFire]
+          : []
+        return Q(res);
+      });
   });
   after(function() {
-    store._call.restore();
+    api.search.restore();
   });
   describe('.findCollection()', function() {
     it('returns a promise for lib objects', function() {
